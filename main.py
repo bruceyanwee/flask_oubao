@@ -3,19 +3,43 @@
 # Press ⌃R to execute it or replace it with your code.
 # Press Double ⇧ to search everywhere for classes, files, tool windows, actions, and settings.
 import json
-from flask import Flask,jsonify,request
-from flask_cors import CORS
+from flask import Flask,jsonify,request,render_template
+from flask_cors import CORS,cross_origin
 app = Flask(__name__)
 CORS(app, supports_credentials=True)
 
-@app.route("/test")
+@app.route("/test",methods=['GET', 'POST'])
 def test():
-    return jsonify({"text":"this just a test for uni-app with flask on cloud"}) 
+    print('ok')
+    f = request.files['file']
+    return 'upfile ok'
 
-@app.route("/hi")
-def say_hi():
-    return "hi"
-@app.route('/upload')
+@app.route("/query",methods=['POST'])
+def query():
+    question = request.form.get('query')
+    response_data = {
+        'query':question,
+        'answer':'api test ok'
+        }
+    return jsonify(response_data)
+
+
+# 上传文件的
+# 存放路径
+file_base_path = '/root/home/wwj/'
+file_paths = {
+    'test':'test/',
+    'hot_video':'hot_video/',
+    'hot_img':'hot_img/'
+}
+@app.route('/upload/',methods=['GET', 'POST'])
 def upload_res():
-    pass
-app.run(host="0.0.0.0")
+    if request.method == 'GET':
+        return render_template('upload_file.html')
+    else:
+        f = request.files['up_file']
+        path = file_base_path+file_paths['test']+f.filename
+        f.save(path)
+        return 'upload sucess'
+
+app.run(host="0.0.0.0",port=5000)
